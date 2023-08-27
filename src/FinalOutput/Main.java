@@ -13,8 +13,8 @@ import java.util.InputMismatchException;
 import java.util.Scanner;
 
 public class Main {
-	public static String userCSVPath = "C:\\Users\\DELL\\OneDrive\\Documents\\Advanced-Java\\Advanced-Java\\resources\\new\\accounts.csv";
-	public static String userCSVPathTemp = "C:\\Users\\DELL\\OneDrive\\Documents\\Advanced-Java\\Advanced-Java\\resources\\new\\accounts_temp.csv";
+	public static String userCSVPath = "C:\\javaProjects\\resources\\accounts.csv";
+	public static String userCSVPathTemp = "C:\\javaProjects\\resources\\accounts_temp.csv";
 	
 	public static File fileTemp = new File(userCSVPathTemp);
 	public static File file = new File(userCSVPath);
@@ -23,7 +23,7 @@ public class Main {
 	public static Path path = Paths.get(userCSVPath);
 	
 	public static Scanner scanner = new Scanner(System.in);
-	public static void main(String[] args) {
+	public static void main(String[] args) throws IOException {
 		try (BufferedReader br = new BufferedReader(new FileReader(file));
 				FileWriter output = new FileWriter(fileTemp);) {
 		    String line="", username="";
@@ -42,16 +42,13 @@ public class Main {
 			    	}
 			    	output.write(line + "\n");
 			    }
-			    
-			    Files.move(pathTemp, path, StandardCopyOption.REPLACE_EXISTING);
-				scanner.close();
+			    scanner.close();
 				System.out.println(acctInfo == null ? "Account doesn't exist." : "Exiting...");  
 		    }
-		} catch (IOException e) {
+		}  catch (Exception e) {
 			System.out.println(e.getMessage());
-		} catch (Exception e) {
-			System.out.println(e.getMessage());
-		}
+		} 
+		Files.move(pathTemp, path, StandardCopyOption.REPLACE_EXISTING);
 	}
 	
 	private static String accountChecker(String[] acctInfo) {
@@ -65,20 +62,22 @@ public class Main {
 			System.out.print("Choose an account:\n1. Savings\n2. Current\n->");
 			account = scanner.nextInt();
 			
-			if(account == 1) {
-				userAccount = new SavingsAccount(savingsBalance);
-			} else if(account == 2) {
-				userAccount = new CurrentAccount(currentBalance);
-			}
+			userAccount = account == 1 ? new SavingsAccount(savingsBalance) : new CurrentAccount(currentBalance);
 			
 			transac = chooseTransaction(scanner);
-			
-			if(transac == 1) {
-				tempBalance = userAccount.deposit(scanner.nextInt());
-			} else if (transac == 2) {
-				tempBalance = userAccount.withdraw(scanner.nextInt());
-			} else if (transac == 3) {		
-				System.out.println("Your current balance is: " + userAccount.getBalance());
+			switch (transac) {
+				case 1: {
+					tempBalance = userAccount.deposit(scanner.nextInt());
+					break;
+				}
+				case 2 : {
+					tempBalance = userAccount.withdraw(scanner.nextInt());
+					break;
+				}
+				case 3 : {
+					System.out.println("Your current balance is: " + userAccount.getBalance());
+					break;
+				}
 			}
 			
 			savingsBalance = account == 1 && tempBalance != 0 ? tempBalance : savingsBalance;
@@ -94,9 +93,7 @@ public class Main {
 			System.out.print("Select transaction:\n1. Deposit \n2. Withdraw \n3. View Balance\n-> ");
 			int trans = scanner.nextInt();
 			if(trans > 0 && trans <=3) {
-				if(trans <= 2) {
-					System.out.print("Enter amount: ");
-				}
+				System.out.print(trans <= 2 ? "Enter amount: " : "");
 				return trans;
 			} 
 			throw new InputMismatchException();
