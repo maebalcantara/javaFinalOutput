@@ -23,12 +23,13 @@ public class Main {
 	public static Path path = Paths.get(userCSVPath);
 	
 	public static Scanner scanner = new Scanner(System.in);
+	
 	public static void main(String[] args) throws IOException {
 		try (BufferedReader br = new BufferedReader(new FileReader(file));
 				FileWriter output = new FileWriter(fileTemp);) {
 		    String line="", username="";
 		    String[] acctInfo = null;
-
+		    
 		    System.out.print("Enter your username: ");
 		    username = scanner.nextLine();
 		    
@@ -38,7 +39,7 @@ public class Main {
 			    while ((line = br.readLine()) != null) {
 			    	if(line.split(",")[0].equals(username)) {
 			    		acctInfo = line.split(",");
-			    		line=accountChecker(acctInfo);
+			    		line=accountProcess(acctInfo);
 			    	}
 			    	output.write(line + "\n");
 			    }
@@ -51,7 +52,7 @@ public class Main {
 		Files.move(pathTemp, path, StandardCopyOption.REPLACE_EXISTING);
 	}
 	
-	private static String accountChecker(String[] acctInfo) {
+	private static String accountProcess(String[] acctInfo) {
 		String username=acctInfo[0];
 		double savingsBalance=Double.valueOf(acctInfo[1]), currentBalance=Double.valueOf(acctInfo[2]),tempBalance=0;
 		int transac=0, account=0;
@@ -89,19 +90,20 @@ public class Main {
 	}
 	
 	private static int chooseTransaction(Scanner scanner) {
+		int trans = -1;
 		try{	
 			System.out.print("Select transaction:\n1. Deposit \n2. Withdraw \n3. View Balance\n-> ");
-			int trans = scanner.nextInt();
+			 scanner.nextInt();
 			if(trans > 0 && trans <=3) {
 				System.out.print(trans <= 2 ? "Enter amount: " : "");
-				return trans;
-			} 
-			throw new InputMismatchException();
+			} else {
+				throw new InputMismatchException();
+			}
 		} catch (InputMismatchException e) {
 			System.out.println("Invalid transaction.");
 		} catch (Exception e) {
 			System.out.println(e.getMessage());
 		}
-		return -1;
+		return trans;
 	}
 }
